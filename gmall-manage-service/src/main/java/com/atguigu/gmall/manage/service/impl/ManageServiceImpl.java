@@ -6,6 +6,7 @@ import com.atguigu.gmall.manage.mapper.*;
 import com.atguigu.gmall.service.ManageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -60,10 +61,14 @@ public class ManageServiceImpl implements ManageService {
     @Override
     public void saveAttrInfo(BaseAttrInfo baseAttrInfo) {
         if (baseAttrInfo.getId() != null && baseAttrInfo.getId().length() > 0){
-            baseAttrInfoMapper.updateByPrimaryKey(baseAttrInfo);
+            if(StringUtils.isEmpty(baseAttrInfo.getAttrName()) && (baseAttrInfo.getAttrValueList() == null || baseAttrInfo.getAttrValueList().size() == 0)){
+                baseAttrInfoMapper.deleteByPrimaryKey(baseAttrInfo);
+            } else {
+                baseAttrInfoMapper.updateByPrimaryKey(baseAttrInfo);
+            }
         } else {
-            baseAttrInfo.setId(null);
-            baseAttrInfoMapper.insertSelective(baseAttrInfo);
+                baseAttrInfo.setId(null);
+                baseAttrInfoMapper.insertSelective(baseAttrInfo);
         }
 
         BaseAttrValue baseAttrValue4Del = new BaseAttrValue();
