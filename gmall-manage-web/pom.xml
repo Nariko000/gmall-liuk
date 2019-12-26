@@ -9,9 +9,9 @@
 		<relativePath>../gmall-parent/pom.xml</relativePath>
 	</parent>
 	<groupId>com.atguigu.gmall</groupId>
-	<artifactId>gmall-order-web</artifactId>
+	<artifactId>gmall-manage-web</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gmall-order-web</name>
+	<name>gmall-manage-web</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
