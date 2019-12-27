@@ -38,30 +38,27 @@ public class ManageServiceImpl implements ManageService {
     }
 
     @Override
-    public List<BaseCatalog2> getCatalog2(String catalog1Id) {
-        BaseCatalog2 baseCatalog2 = new BaseCatalog2();
-        baseCatalog2.setCatalog1Id(catalog1Id);
+    public List<BaseCatalog2> getCatalog2(BaseCatalog2 baseCatalog2) {
         return baseCatalog2Mapper.select(baseCatalog2);
     }
 
     @Override
-    public List<BaseCatalog3> getCatalog3(String catalog2Id) {
-        BaseCatalog3 baseCatalog3 = new BaseCatalog3();
-        baseCatalog3.setCatalog2Id(catalog2Id);
+    public List<BaseCatalog3> getCatalog3(BaseCatalog3 baseCatalog3) {
         return baseCatalog3Mapper.select(baseCatalog3);
     }
 
     @Override
-    public List<BaseAttrInfo> getAttrList(String catalog3Id) {
-        BaseAttrInfo baseAttrInfo = new BaseAttrInfo();
-        baseAttrInfo.setCatalog3Id(catalog3Id);
+    public List<BaseAttrInfo> getAttrList(BaseAttrInfo baseAttrInfo) {
         return baseAttrInfoMapper.select(baseAttrInfo);
     }
 
     @Override
     public void saveAttrInfo(BaseAttrInfo baseAttrInfo) {
+        List<BaseAttrValue> attrValueList = baseAttrInfo.getAttrValueList();
+        //如果有主键就进行删除或更新，如果没有就插入
         if (baseAttrInfo.getId() != null && baseAttrInfo.getId().length() > 0){
-            if(StringUtils.isEmpty(baseAttrInfo.getAttrName()) && (baseAttrInfo.getAttrValueList() == null || baseAttrInfo.getAttrValueList().size() == 0)){
+            //如果有属性名和属性值就进行更新，如果没有就删除
+            if(StringUtils.isEmpty(baseAttrInfo.getAttrName()) && (attrValueList == null || attrValueList.size() == 0)){
                 baseAttrInfoMapper.deleteByPrimaryKey(baseAttrInfo);
             } else {
                 baseAttrInfoMapper.updateByPrimaryKey(baseAttrInfo);
@@ -70,12 +67,12 @@ public class ManageServiceImpl implements ManageService {
                 baseAttrInfo.setId(null);
                 baseAttrInfoMapper.insertSelective(baseAttrInfo);
         }
-
-        BaseAttrValue baseAttrValue4Del = new BaseAttrValue();
-        baseAttrValue4Del.setAttrId(baseAttrInfo.getId());
-        baseAttrValueMapper.delete(baseAttrValue4Del);
-
-        if (baseAttrInfo.getAttrValueList() != null && baseAttrInfo.getAttrValueList().size() > 0){
+        //把原属性值全部清空
+        BaseAttrValue baseAttrValueDel = new BaseAttrValue();
+        baseAttrValueDel.setAttrId(baseAttrInfo.getId());
+        baseAttrValueMapper.delete(baseAttrValueDel);
+        //重新插入属性值
+        if (attrValueList != null && attrValueList.size() > 0){
             for (BaseAttrValue attrValue : baseAttrInfo.getAttrValueList()){
                 attrValue.setId(null);
                 attrValue.setAttrId(baseAttrInfo.getId());
@@ -88,11 +85,15 @@ public class ManageServiceImpl implements ManageService {
     @Override
     public BaseAttrInfo getAttrInfo(String attrId) {
         BaseAttrInfo attrInfo = baseAttrInfoMapper.selectByPrimaryKey(attrId);
-        BaseAttrValue baseAttrValue = new BaseAttrValue();
-        baseAttrValue.setAttrId(attrInfo.getId());
-        List<BaseAttrValue> attrValueList = baseAttrValueMapper.select(baseAttrValue);
-        attrInfo.setAttrValueList(attrValueList);
+        attrInfo.setAttrValueList(this.getAttrValueList(attrId));
         return attrInfo;
+    }
+
+    @Override
+    public List<BaseAttrValue> getAttrValueList(String attrId) {
+        BaseAttrValue baseAttrValue = new BaseAttrValue();
+        baseAttrValue.setAttrId(attrId);
+        return baseAttrValueMapper.select(baseAttrValue);
     }
 
     @Override

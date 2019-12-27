@@ -14,24 +14,24 @@ public interface ManageService {
 
     /**
      * 根据一级分类Id获取二级分类数据
-     * @param catalog1Id
+     * @param baseCatalog2
      * @return
      */
-    public List<BaseCatalog2> getCatalog2(String catalog1Id);
+    public List<BaseCatalog2> getCatalog2(BaseCatalog2 baseCatalog2);
 
     /**
      * 根据二级分类Id获取三级分类数据
-     * @param catalog2Id
+     * @param baseCatalog3
      * @return
      */
-    public List<BaseCatalog3> getCatalog3(String catalog2Id);
+    public List<BaseCatalog3> getCatalog3(BaseCatalog3 baseCatalog3);
 
     /**
      * 根据三级分类Id获取属性
-     * @param catalog3Id
+     * @param baseAttrInfo
      * @return
      */
-    public List<BaseAttrInfo> getAttrList(String catalog3Id);
+    public List<BaseAttrInfo> getAttrList(BaseAttrInfo baseAttrInfo);
 
     /**
      * 如果Id不存在：保存属性&属性值。
@@ -43,11 +43,18 @@ public interface ManageService {
     public void saveAttrInfo(BaseAttrInfo baseAttrInfo);
 
     /**
-     * 根据attrId获取属性&属性值
+     * 根据attrId获取属性
      * @param attrId
      * @return
      */
     public BaseAttrInfo getAttrInfo(String attrId);
+
+    /**
+     * 根据attrId获取属性值
+     * @param attrId
+     * @return
+     */
+    public List<BaseAttrValue> getAttrValueList(String attrId);
 
     public List<SpuInfo> getSpuInfoList(SpuInfo spuInfo);
 

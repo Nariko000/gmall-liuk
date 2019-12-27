@@ -20,18 +20,18 @@ public class ManageController {
     }
 
     @RequestMapping("getCatalog2")
-    public List<BaseCatalog2> getCatalog2(String catalog1Id){
-        return manageService.getCatalog2(catalog1Id);
+    public List<BaseCatalog2> getCatalog2(BaseCatalog2 baseCatalog2){
+        return manageService.getCatalog2(baseCatalog2);
     }
 
     @RequestMapping("getCatalog3")
-    public List<BaseCatalog3> getCatalog3(String catalog2Id){
-        return manageService.getCatalog3(catalog2Id);
+    public List<BaseCatalog3> getCatalog3(BaseCatalog3 baseCatalog3){
+        return manageService.getCatalog3(baseCatalog3);
     }
 
     @RequestMapping("attrInfoList")
-    public List<BaseAttrInfo> attrInfoList(String catalog3Id){
-        return manageService.getAttrList(catalog3Id);
+    public List<BaseAttrInfo> attrInfoList(BaseAttrInfo baseAttrInfo){
+        return manageService.getAttrList(baseAttrInfo);
     }
 
     @RequestMapping("saveAttrInfo")
