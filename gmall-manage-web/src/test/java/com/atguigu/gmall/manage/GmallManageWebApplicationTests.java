@@ -36,7 +36,7 @@ public class GmallManageWebApplicationTests {
 			System.out.println("s = " + s);
 			/*
 			s = group1
-			s = M00/00/00/wKhD4l4G-aSAB0dxAACGx2c4tJ4196.jpg
+			s = M00/00/00/wKjChF4HW2aAA-HNAAAtw24kJ2U494.jpg
 			 */
 		}
 	}
