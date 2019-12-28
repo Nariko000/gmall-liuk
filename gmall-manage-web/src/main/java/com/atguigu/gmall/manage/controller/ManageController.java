@@ -45,11 +45,4 @@ public class ManageController {
         return attrInfo.getAttrValueList();
     }
 
-    @RequestMapping("supList")
-    public List<SpuInfo> supList(String catalog3Id){
-        SpuInfo spuInfo = new SpuInfo();
-        spuInfo.setCatalog3Id(catalog3Id);
-        return manageService.getSpuInfoList(spuInfo);
-    }
-
 }

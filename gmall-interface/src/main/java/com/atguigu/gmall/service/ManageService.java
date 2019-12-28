@@ -56,6 +56,11 @@ public interface ManageService {
      */
     public List<BaseAttrValue> getAttrValueList(String attrId);
 
+    /**
+     * 通过三级分类Id 查询
+     * @param spuInfo
+     * @return
+     */
     public List<SpuInfo> getSpuInfoList(SpuInfo spuInfo);
 
 }
