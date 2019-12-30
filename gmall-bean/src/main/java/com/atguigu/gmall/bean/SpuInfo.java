@@ -2,11 +2,9 @@ package com.atguigu.gmall.bean;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class SpuInfo implements Serializable {
@@ -24,6 +22,13 @@ public class SpuInfo implements Serializable {
 
     @Column
     private  String catalog3Id;
+
+    @Transient
+    private List<SpuSaleAttr> spuSaleAttrList;
+
+    @Transient
+    private List<SpuImage> spuImageList;
+
 
 
 }
