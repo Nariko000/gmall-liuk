@@ -101,4 +101,25 @@ public interface ManageService {
      * @param skuInfo
      */
     public void saveSkuInfo(SkuInfo skuInfo);
+
+    /**
+     * 根据skuId查询skuInfo
+     * @param skuId
+     * @return
+     */
+    public SkuInfo getSkuInfo(String skuId);
+
+    /**
+     * 通过skuId，spuId查询销售属性集合
+     * @param skuInfo
+     * @return
+     */
+    public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(SkuInfo skuInfo);
+
+    /**
+     * 根据spuId 查询sku销售属性值的集合
+     * @param spuId
+     * @return
+     */
+    public List<SkuSaleAttrValue> getSkuSaleAttrValueListBySpu(String spuId);
 }
