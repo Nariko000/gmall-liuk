@@ -4,6 +4,11 @@
     <resultMap id="skuSaleAttrValueMap" type="com.atguigu.gmall.bean.SkuSaleAttrValue" autoMapping="true">
         <id property="id" column="id"></id>
     </resultMap>
+
+    <resultMap id="spuValueIdsMap" type="java.util.Map" autoMapping="true">
+
+    </resultMap>
+
     <select id="selectSkuSaleAttrValueListBySpu" resultMap="skuSaleAttrValueMap">
         SELECT
             sale_attr_value_id,
@@ -16,5 +21,12 @@
             ssav.sku_id = si.id
         AND si.spu_id = #{0}
         ORDER BY si.id ,ssav.sale_attr_id
+    </select>
+
+    <select id="getSaleAttrValuesBySpu" resultMap="spuValueIdsMap">
+        SELECT sku_id  , GROUP_CONCAT(sale_attr_value_id  ORDER BY sale_attr_value_id ASC   SEPARATOR '|') value_ids
+        FROM  `sku_sale_attr_value` sv INNER JOIN  `sku_info` si ON  sv.sku_id=si.id
+        WHERE si.spu_id=#{spuId}
+        GROUP BY sku_id
     </select>
 </mapper>

@@ -1,15 +1,24 @@
 package com.atguigu.gmall.manage.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.bean.*;
+import com.atguigu.gmall.config.RedisUtil;
 import com.atguigu.gmall.manage.mapper.*;
+import static com.atguigu.gmall.manage.constant.ManageConst.*;
 import com.atguigu.gmall.service.ManageService;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import redis.clients.jedis.Jedis;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -57,6 +66,9 @@ public class ManageServiceImpl implements ManageService {
 
     @Autowired
     private SkuImageMapper skuImageMapper;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public List<BaseCatalog1> getCatalog1() {
@@ -208,6 +220,92 @@ public class ManageServiceImpl implements ManageService {
 
     @Override
     public SkuInfo getSkuInfo(String skuId) {
+        SkuInfo skuInfo = null;
+        Jedis jedis = null;
+        try {
+            jedis = redisUtil.getJedis();
+            String skuKey = SKUKEY_PREFIX + skuId + SKUKEY_SUFFIX;
+            String skuJson = jedis.get(skuKey);
+            if (skuJson == null){
+                Config config = new Config();
+                config.useSingleServer().setAddress("redis://192.168.194.132:6379");
+                RedissonClient redisson = Redisson.create(config);
+                RLock lock = redisson.getLock("myLock");
+                System.out.println("redisson 分布式锁！");
+                boolean res = lock.tryLock(100, 10, TimeUnit.SECONDS);
+                if(res){
+                    try {
+                        skuInfo = getSkuInfoDB(skuId);
+                        jedis.setex(skuKey, SKUKEY_TIMEOUT, JSON.toJSONString(skuInfo));
+                        return skuInfo;
+                    } finally {
+                        lock.unlock();
+                    }
+                }
+            }else {
+                skuInfo = JSON.parseObject(skuJson, SkuInfo.class);
+                return skuInfo;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null){
+                jedis.close();
+            }
+        }
+//        return getSkuInfoByRedisSet(skuId);
+        return getSkuInfoDB(skuId);
+    }
+
+    private SkuInfo getSkuInfoByRedisSet(String skuId) {
+        SkuInfo skuInfo = null;
+        Jedis jedis = null;
+        try {
+            jedis = redisUtil.getJedis();
+            String skuKey = SKUKEY_PREFIX + skuId + SKUKEY_SUFFIX;
+            String skuJson = jedis.get(skuKey);
+            if (skuJson == null){
+                System.out.println("缓存中没有数据：");
+                String skuLockKey = SKUKEY_PREFIX + skuId + SKULOCK_SUFFIX;
+                String token = UUID.randomUUID().toString().replace("-", "");
+                String lockKey = jedis.set(skuLockKey, token, "NX", "PX", SKULOCK_EXPIRE_PX);
+                if("OK".equals(lockKey)){
+                    System.out.println("上锁成功！");
+                    skuInfo = getSkuInfoDB(skuId);
+                    jedis.setex(skuKey, SKUKEY_TIMEOUT, JSON.toJSONString(skuInfo));
+                    String script ="if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+                    jedis.eval(script, Collections.singletonList(skuLockKey), Collections.singletonList(token));
+                    return skuInfo;
+                }else {
+                    Thread.sleep(1000);
+                    return getSkuInfo(skuId);
+                }
+            }else {
+                skuInfo = JSON.parseObject(skuJson, SkuInfo.class);
+                return skuInfo;
+            }
+//            if (jedis.exists(skuKey)){
+//                String skuJson = jedis.get(skuKey);
+//                if (!StringUtils.isEmpty(skuJson)){
+//                    skuInfo = JSON.parseObject(skuJson, SkuInfo.class);
+//                    return skuInfo;
+//                }
+//            }else {
+//                skuInfo = getSkuInfoDB(skuId);
+//                jedis.setex(skuKey, SKUKEY_TIMEOUT, JSON.toJSONString(skuInfo));
+//                return skuInfo;
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null){
+                jedis.close();
+            }
+        }
+        return getSkuInfoDB(skuId);
+    }
+
+    private SkuInfo getSkuInfoDB(String skuId) {
         SkuInfo skuInfo = skuInfoMapper.selectByPrimaryKey(skuId);
         SkuImage skuImage = new SkuImage();
         skuImage.setSkuId(skuId);
@@ -223,6 +321,18 @@ public class ManageServiceImpl implements ManageService {
     @Override
     public List<SkuSaleAttrValue> getSkuSaleAttrValueListBySpu(String spuId) {
         return skuSaleAttrValueMapper.selectSkuSaleAttrValueListBySpu(spuId);
+    }
+
+    @Override
+    public Map getSkuValueIdsMap(String spuId) {
+        // 根据spuId 组成map
+        List<Map> mapList =  skuSaleAttrValueMapper.getSaleAttrValuesBySpu(spuId);
+        HashMap<Object, Object> hashMap = new HashMap<>();
+        for (Map map : mapList) {
+            hashMap.put(map.get("value_ids"),map.get("sku_id"));
+        }
+        return hashMap;
+
     }
 
 }

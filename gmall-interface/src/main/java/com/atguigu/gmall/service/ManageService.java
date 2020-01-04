@@ -3,6 +3,7 @@ package com.atguigu.gmall.service;
 import com.atguigu.gmall.bean.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ManageService {
 
@@ -122,4 +123,11 @@ public interface ManageService {
      * @return
      */
     public List<SkuSaleAttrValue> getSkuSaleAttrValueListBySpu(String spuId);
+
+    /**
+     * 根据spuId 查询sku销售属性值的集合
+     * @param spuId
+     * @return
+     */
+    public Map getSkuValueIdsMap(String spuId);
 }
