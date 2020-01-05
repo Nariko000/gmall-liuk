@@ -10,9 +10,9 @@ import java.io.Serializable;
 public class BaseSaleAttr implements Serializable {
     @Id
     @Column
-    String id ;
+    private String id ;
 
     @Column
-    String name;
+    private String name;
 }
 

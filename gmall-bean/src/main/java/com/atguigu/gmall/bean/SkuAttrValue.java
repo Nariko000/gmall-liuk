@@ -11,15 +11,15 @@ public class SkuAttrValue implements Serializable {
 
     @Id
     @Column
-    String id;
+    private String id;
 
     @Column
-    String attrId;
+    private String attrId;
 
     @Column
-    String valueId;
+    private String valueId;
 
     @Column
-    String skuId;
+    private String skuId;
 }
 

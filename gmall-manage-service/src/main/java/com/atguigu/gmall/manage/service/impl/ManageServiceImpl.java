@@ -236,6 +236,9 @@ public class ManageServiceImpl implements ManageService {
                 if(res){
                     try {
                         skuInfo = getSkuInfoDB(skuId);
+                        if(skuInfo == null){
+                            jedis.setex(skuKey, SKUKEY_TIMEOUT, "");
+                        }
                         jedis.setex(skuKey, SKUKEY_TIMEOUT, JSON.toJSONString(skuInfo));
                         return skuInfo;
                     } finally {
@@ -310,6 +313,9 @@ public class ManageServiceImpl implements ManageService {
         SkuImage skuImage = new SkuImage();
         skuImage.setSkuId(skuId);
         skuInfo.setSkuImageList(skuImageMapper.select(skuImage));
+        SkuAttrValue skuAttrValue = new SkuAttrValue();
+        skuAttrValue.setSkuId(skuId);
+        skuInfo.setSkuAttrValueList(skuAttrValueMapper.select(skuAttrValue));
         return skuInfo;
     }
 

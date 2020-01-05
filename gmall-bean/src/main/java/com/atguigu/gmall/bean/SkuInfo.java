@@ -13,36 +13,36 @@ public class SkuInfo implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column
-    String id;
+    private String id;
 
     @Column
-    String spuId;
+    private String spuId;
 
     @Column
-    BigDecimal price;
+    private BigDecimal price;
 
     @Column
-    String skuName;
+    private String skuName;
 
     @Column
-    BigDecimal weight;
+    private BigDecimal weight;
 
     @Column
-    String skuDesc;
+    private String skuDesc;
 
     @Column
-    String catalog3Id;
+    private String catalog3Id;
 
     @Column
-    String skuDefaultImg;
+    private String skuDefaultImg;
 
     @Transient
-    List<SkuImage> skuImageList;
+    private List<SkuImage> skuImageList;
 
     @Transient
-    List<SkuAttrValue> skuAttrValueList;
+    private List<SkuAttrValue> skuAttrValueList;
 
     @Transient
-    List<SkuSaleAttrValue> skuSaleAttrValueList;
+    private List<SkuSaleAttrValue> skuSaleAttrValueList;
 }
 

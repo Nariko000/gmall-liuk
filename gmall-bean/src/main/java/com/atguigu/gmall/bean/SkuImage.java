@@ -11,16 +11,16 @@ public class SkuImage implements Serializable {
 
     @Id
     @Column
-    String id;
+    private String id;
     @Column
-    String skuId;
+    private String skuId;
     @Column
-    String imgName;
+    private String imgName;
     @Column
-    String imgUrl;
+    private String imgUrl;
     @Column
-    String spuImgId;
+    private String spuImgId;
     @Column
-    String isDefault;
+    private String isDefault;
 }
 

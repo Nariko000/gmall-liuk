@@ -11,21 +11,21 @@ public class SkuSaleAttrValue implements Serializable {
 
     @Id
     @Column
-    String id;
+    private String id;
 
     @Column
-    String skuId;
+    private String skuId;
 
     @Column
-    String saleAttrId;
+    private String saleAttrId;
 
     @Column
-    String saleAttrValueId;
+    private String saleAttrValueId;
 
     @Column
-    String saleAttrName;
+    private String saleAttrName;
 
     @Column
-    String saleAttrValueName;
+    private String saleAttrValueName;
 }
 
