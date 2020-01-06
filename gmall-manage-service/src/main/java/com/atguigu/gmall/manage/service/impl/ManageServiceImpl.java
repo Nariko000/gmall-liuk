@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -339,6 +338,12 @@ public class ManageServiceImpl implements ManageService {
         }
         return hashMap;
 
+    }
+
+    @Override
+    public List<BaseAttrInfo> getAttrInfoList(List<String> attrValueIdList) {
+        String attrValueIds = org.apache.commons.lang3.StringUtils.join(attrValueIdList.toArray(), ",");
+        return baseAttrInfoMapper.selectAttrInfoListByIds(attrValueIds);
     }
 
 }
