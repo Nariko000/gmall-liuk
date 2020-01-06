@@ -60,7 +60,7 @@ public class ListController {
         request.setAttribute("baseAttrValueArrayList", baseAttrValueArrayList);
         request.setAttribute("keyword", skuLsParams.getKeyword());
         request.setAttribute("pageNo", skuLsParams.getPageNo());
-        request.setAttribute("totalPage", skuLsResult.getTotalPages());
+        request.setAttribute("totalPages", skuLsResult.getTotalPages());
         return "list";
     }
 
