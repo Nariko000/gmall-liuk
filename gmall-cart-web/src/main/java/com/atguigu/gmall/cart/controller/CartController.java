@@ -8,6 +8,7 @@ import com.atguigu.gmall.config.LoginRequire;
 import com.atguigu.gmall.service.CartService;
 import com.atguigu.gmall.service.ManageService;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -53,20 +54,20 @@ public class CartController {
         String userId = (String) request.getAttribute("userId");
         if (userId != null){
             String userTempId = CookieUtil.getCookieValue(request, "user-key", false);
-            List<CartInfo> cartTempList = new ArrayList<>();
-            if (userTempId != null){
-                cartTempList = cartService.getCartList(userTempId);
-                if (cartTempList != null && cartTempList.size() > 0){
-                    cartInfoList = cartService.mergeToCartList(cartTempList, userId);
+            List<CartInfo> cartInfoNoLoginList = new ArrayList<>();
+            if (!StringUtils.isEmpty(userTempId)){
+                cartInfoNoLoginList = cartService.getCartList(userTempId);
+                if (cartInfoNoLoginList != null && cartInfoNoLoginList.size() > 0){
+                    cartInfoList = cartService.mergeToCartList(cartInfoNoLoginList, userId);
                     cartService.deleteCartList(userTempId);
                 }
             }
-            if (userTempId == null || (cartTempList == null || cartTempList.size() == 0)){
+            if (StringUtils.isEmpty(userTempId) || (cartInfoNoLoginList == null || cartInfoNoLoginList.size() == 0)){
                 cartInfoList = cartService.getCartList(userId);
             }
         }else {
             String userTempId = CookieUtil.getCookieValue(request, "user-key", false);
-            if (userTempId != null){
+            if (!StringUtils.isEmpty(userTempId)){
                 cartInfoList = cartService.getCartList(userTempId);
             }
         }
@@ -77,26 +78,25 @@ public class CartController {
     @LoginRequire(autoRedirect = false)
     @RequestMapping("checkCart")
     @ResponseBody
-    public void checkCart(HttpServletRequest request, HttpServletResponse response){
+    public void checkCart(HttpServletRequest request){
         String isChecked = request.getParameter("isChecked");
         String skuId = request.getParameter("skuId");
         String userId = (String) request.getAttribute("userId");
         if (userId == null){
             userId = CookieUtil.getCookieValue(request, "user-key", false);
         }
-        cartService.checkCart(isChecked, skuId, userId);
+        cartService.checkCart(skuId, userId, isChecked);
     }
 
     @LoginRequire
     @RequestMapping("toTrade")
-    public String toTrade(HttpServletRequest request, HttpServletResponse response){
+    public String toTrade(HttpServletRequest request){
         String userId = (String) request.getAttribute("userId");
-        List<CartInfo> cartTempList = null;
         String userTempId = CookieUtil.getCookieValue(request, "user-key", false);
-        if (userTempId != null){
-            cartTempList = cartService.getCartList(userTempId);
-            if (cartTempList != null && cartTempList.size() > 0){
-                List<CartInfo> cartInfoList = cartService.mergeToCartList(cartTempList, userId);
+        if (!StringUtils.isEmpty(userTempId)){
+            List<CartInfo> cartInfoNoLoginList = cartService.getCartList(userTempId);
+            if (cartInfoNoLoginList != null && cartInfoNoLoginList.size() > 0){
+                cartService.mergeToCartList(cartInfoNoLoginList, userId);
                 cartService.deleteCartList(userTempId);
             }
         }

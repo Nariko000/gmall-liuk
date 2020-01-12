@@ -84,11 +84,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartInfo> mergeToCartList(List<CartInfo> cartInfoArrayList, String userId) {
+    public List<CartInfo> mergeToCartList(List<CartInfo> cartInfoNoLoginList, String userId) {
         List<CartInfo> cartInfoList = new ArrayList<>();
         List<CartInfo> cartInfoListLogin = cartInfoMapper.selectCartListWithCurPrice(userId);
         if (cartInfoListLogin != null && cartInfoListLogin.size() > 0){
-            for (CartInfo cartInfoNoLogin : cartInfoArrayList) {
+            for (CartInfo cartInfoNoLogin : cartInfoNoLoginList) {
                 boolean isMatch = false;
                 for (CartInfo cartInfoLogin : cartInfoListLogin) {
                     if (cartInfoNoLogin.getSkuId().equals(cartInfoLogin.getSkuId())){
@@ -104,20 +104,20 @@ public class CartServiceImpl implements CartService {
                 }
             }
         }else {
-            for (CartInfo cartInfo : cartInfoArrayList) {
+            for (CartInfo cartInfo : cartInfoNoLoginList) {
                 cartInfo.setId(null);
                 cartInfo.setUserId(userId);
                 cartInfoMapper.insertSelective(cartInfo);
             }
         }
         cartInfoList = loadCartCache(userId);
-        for (CartInfo cartInfoDB : cartInfoList){
-            for (CartInfo cartInfo : cartInfoArrayList){
-                if (cartInfoDB.getSkuId().equals(cartInfo.getSkuId())){
-                    if ("1".equals(cartInfo.getIsChecked())){
-                        if(!"1".equals(cartInfoDB.getIsChecked())){
-                            cartInfo.setIsChecked("1");
-                            checkCart(cartInfo.getIsChecked(), cartInfo.getSkuId(), userId);
+        if (cartInfoList!=null && cartInfoList.size()>0){
+            for (CartInfo cartInfoLogin : cartInfoList) {
+                for (CartInfo cartInfo : cartInfoNoLoginList) {
+                    if (cartInfo.getSkuId().equals(cartInfoLogin.getSkuId())){
+                        if ("1".equals(cartInfo.getIsChecked())){
+                            cartInfoLogin.setIsChecked("1");
+                            checkCart(cartInfo.getSkuId(),userId,"1");
                         }
                     }
                 }
@@ -138,26 +138,41 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void checkCart(String isChecked, String skuId, String userId) {
-        Example example = new Example(CartInfo.class);
-        example.createCriteria().andEqualTo("userId", userId).andEqualTo("skuId", skuId);
+    public void checkCart(String skuId, String userId, String isChecked) {
         CartInfo cartInfo = new CartInfo();
         cartInfo.setIsChecked(isChecked);
-        System.out.println("修改数据------");
+        Example example = new Example(CartInfo.class);
+        example.createCriteria().andEqualTo("userId", userId).andEqualTo("skuId", skuId);
         cartInfoMapper.updateByExampleSelective(cartInfo, example);
         Jedis jedis = redisUtil.getJedis();
         String cartKey = CartConst.USER_KEY_PREFIX + userId + CartConst.USER_CART_KEY_SUFFIX;
-        jedis.hdel(cartKey, skuId);
-        List<CartInfo> cartInfoList = cartInfoMapper.selectByExample(example);
-        if (cartInfoList != null && cartInfoList.size() > 0){
-            CartInfo cartInfoQuery = cartInfoList.get(0);
-            cartInfoQuery.setSkuPrice(cartInfoQuery.getCartPrice());
-            jedis.hset(cartKey, skuId, JSON.toJSONString(cartInfoQuery));
-        }
+        String cartInfoJson = jedis.hget(cartKey, skuId);
+        CartInfo cartInfoUpd = JSON.parseObject(cartInfoJson, CartInfo.class);
+        cartInfoUpd.setIsChecked(isChecked);
+        jedis.hset(cartKey, skuId, JSON.toJSONString(cartInfoUpd));
         jedis.close();
     }
 
-    private List<CartInfo> loadCartCache(String userId){
+    @Override
+    public List<CartInfo> cartgetCartCheckedList(String userId) {
+        List<CartInfo> cartInfoList = new ArrayList<>();
+        Jedis jedis = redisUtil.getJedis();
+        String cartKey = CartConst.USER_KEY_PREFIX + userId + CartConst.USER_CART_KEY_SUFFIX;
+        List<String> stringList = jedis.hvals(cartKey);
+        if (stringList != null && stringList.size() > 0){
+            for (String cartInfoJson : stringList) {
+                CartInfo cartInfo = JSON.parseObject(cartInfoJson, CartInfo.class);
+                if ("1".equals(cartInfo.getIsChecked())){
+                    cartInfoList.add(cartInfo);
+                }
+            }
+        }
+        jedis.close();
+        return cartInfoList;
+    }
+
+    @Override
+    public List<CartInfo> loadCartCache(String userId){
         List<CartInfo> cartInfoList = cartInfoMapper.selectCartListWithCurPrice(userId);
         if (cartInfoList == null || cartInfoList.size() == 0){
             return null;

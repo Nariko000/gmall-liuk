@@ -37,10 +37,18 @@ public interface CartService {
 
     /**
      * 选中状态变更
-     * @param isChecked
      * @param skuId
      * @param userId
+     * @param isChecked
      */
-    public void checkCart(String isChecked, String skuId, String userId);
+    public void checkCart(String skuId, String userId, String isChecked);
 
+    /**
+     * 根据用户Id查询选中的购物车列表
+     * @param userId
+     * @return
+     */
+    public List<CartInfo> cartgetCartCheckedList(String userId);
+
+    public List<CartInfo> loadCartCache(String userId);
 }
