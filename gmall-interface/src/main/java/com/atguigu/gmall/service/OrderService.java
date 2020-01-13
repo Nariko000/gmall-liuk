@@ -1,6 +1,7 @@
 package com.atguigu.gmall.service;
 
 import com.atguigu.gmall.bean.OrderInfo;
+import com.atguigu.gmall.enums.ProcessStatus;
 
 public interface OrderService {
 
@@ -46,4 +47,11 @@ public interface OrderService {
      * @return
      */
     public OrderInfo getOrderInfo(String orderId);
+
+    /**
+     * 根据订单Id 修改订单状态
+     * @param orderId
+     * @param paid
+     */
+    public void updateOrderStatus(String orderId, ProcessStatus processStatus);
 }

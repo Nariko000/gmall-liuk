@@ -109,6 +109,7 @@ public class PaymentController {
                 paymentInfoUpd.setPaymentStatus(PaymentStatus.PAID);
                 paymentInfoUpd.setCallbackTime(new Date());
                 paymentService.updatePaymentInfo(out_trade_no,paymentInfoUpd);
+                paymentService.sendPaymentResult(paymentInfoQuery, "success");
                 return "success";
             }
         }else{
@@ -121,10 +122,17 @@ public class PaymentController {
     @RequestMapping("refund")
     @ResponseBody
     public String refund(String orderId){
-        // 退款业务
         boolean flag =  paymentService.refund(orderId);
-
         return ""+flag;
     }
+
+    @RequestMapping("sendPaymentResult")
+    @ResponseBody
+    public String sendPaymentResult(PaymentInfo paymentInfo,@RequestParam("result") String result){
+        paymentService.sendPaymentResult(paymentInfo,result);
+        return "sent payment result";
+    }
+
+
 
 }

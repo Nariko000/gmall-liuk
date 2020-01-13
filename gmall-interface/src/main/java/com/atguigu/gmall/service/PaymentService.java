@@ -2,6 +2,8 @@ package com.atguigu.gmall.service;
 
 import com.atguigu.gmall.bean.PaymentInfo;
 
+import java.util.Map;
+
 public interface PaymentService {
 
     /**
@@ -31,4 +33,20 @@ public interface PaymentService {
      * @return
      */
     public boolean refund(String orderId);
+
+    /**
+     * 微信支付
+     * @param orderId
+     * @param total_fee
+     * @return
+     */
+    public Map createNative(String orderId, String total_fee);
+
+    /**
+     * 发送支付结果
+     * @param paymentInfo
+     * @param result
+     */
+    public void sendPaymentResult(PaymentInfo paymentInfo,String result);
+
 }

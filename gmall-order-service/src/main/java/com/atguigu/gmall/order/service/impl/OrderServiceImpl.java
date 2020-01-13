@@ -72,9 +72,6 @@ public class OrderServiceImpl implements OrderService {
         Jedis jedis = redisUtil.getJedis();
         String tradeNoKey ="user:"+userId+":tradeCode";
         jedis.del(tradeNoKey);
-//        String tradeCode = jedis.get(tradeNoKey);
-//        String script ="if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-//        jedis.eval(script, Collections.singletonList(tradeNoKey),Collections.singletonList(tradeCode));
         jedis.close();
     }
 
@@ -91,6 +88,15 @@ public class OrderServiceImpl implements OrderService {
         orderDetail.setOrderId(orderId);
         orderInfo.setOrderDetailList(orderDetailMapper.select(orderDetail));
         return orderInfo;
+    }
+
+    @Override
+    public void updateOrderStatus(String orderId, ProcessStatus processStatus) {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(orderId);
+        orderInfo.setProcessStatus(processStatus);
+        orderInfo.setOrderStatus(processStatus.getOrderStatus());
+        orderInfoMapper.updateByPrimaryKeySelective(orderInfo);
     }
 
 
